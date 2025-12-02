@@ -22,29 +22,45 @@ namespace IngameScript
 {
     public partial class Program : MyGridProgram
     {
+        private List<IMyPistonBase> retractablePistons = new List<IMyPistonBase>();
+        private List<IMyPistonBase> horizontalPistons = new List<IMyPistonBase>();
+        private List<IMyPistonBase> verticalPistons = new List<IMyPistonBase>();
+        private EArguments parsedArgument;
+        private EState currentState;
+
+        private enum EState {
+            INIT,
+            WORK,
+            PAUSE,
+            COMPLETED,
+        }
+
+        private enum EArguments
+        {
+            INIT,
+            START,
+            PAUSE,
+        }
+
+        // Constants
+        private const float stepDistance = 3.35f;
+        private const int totalCycles = 3;
+
 
         public Program()
         {
             // The constructor, called only once every session and
             // always before any other method is called. Use it to
             // initialize your script. 
-            //     
-            // The constructor is optional and can be removed if not
-            // needed.
-            // 
-            // It's recommended to set Runtime.UpdateFrequency 
-            // here, which will allow your script to run itself without a 
-            // timer block.
+            currentState = EState.INIT;
+            Runtime.UpdateFrequency = UpdateFrequency.Update100;
         }
 
         public void Save()
         {
             // Called when the program needs to save its state. Use
             // this method to save your state to the Storage field
-            // or some other means. 
-            // 
-            // This method is optional and can be removed if not
-            // needed.
+            // or some other means.
         }
 
         public void Main(string argument, UpdateType updateSource)
@@ -58,6 +74,52 @@ namespace IngameScript
             // 
             // The method itself is required, but the arguments above
             // can be removed if not needed.
+
+
+            if (!string.IsNullOrEmpty(argument))
+            {
+                if (!Enum.TryParse<EArguments>(argument, true, out parsedArgument))
+                {
+                    Echo($"Unrecognised argument: \"{argument}\"");
+                    return;
+                }
+
+                switch (parsedArgument)
+                {
+                    case EArguments.INIT:
+                        currentState = EState.INIT;
+                        break;
+                    case EArguments.START:
+                        currentState = EState.WORK;
+                        break;
+                    case EArguments.PAUSE:
+                        currentState = EState.PAUSE;
+                        break;
+                }
+            }
+
+            if (!Enum.IsDefined(typeof(EState), currentState))
+            {
+                Echo($"Unrecognised state: \"{currentState}\"");
+                return;
+            }
+
+            switch (currentState)
+            {
+                case EState.INIT:
+                    //DoInit();
+                    break;
+                case EState.WORK:
+                    //DoStart();
+                    break;
+                case EState.PAUSE:
+                    //DoPause();
+                    break;
+                case EState.COMPLETED:
+                    //DoCompleted();
+                    break;
+
+            }
         }
     }
 }
